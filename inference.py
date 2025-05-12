@@ -89,6 +89,7 @@ wandb.log({
 # 💾 Save to CSV
 print("📁 Saving outputs to CSV...")
 output_df = pd.DataFrame({
+    "Title": df["title"].tolist(),   
     "Original": reference_list,
     "Generated": generated_list
 })
