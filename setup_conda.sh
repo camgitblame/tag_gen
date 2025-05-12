@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # === HPC MODULE SETUP ===
 echo "🔧 Loading Gridware environment and Python module..."
 source /opt/flight/etc/setup.sh
@@ -10,6 +9,7 @@ module load python/3.9.7
 export https_proxy=http://hpc-proxy00.city.ac.uk:3128
 export http_proxy=http://hpc-proxy00.city.ac.uk:3128
 
+ls ~/miniconda3/etc/profile.d/conda.sh
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate tag_gen_env
 which python
