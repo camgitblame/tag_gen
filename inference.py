@@ -54,7 +54,8 @@ for _, row in df.iterrows():
 
 
     decoded = tokenizer.decode(output[0], skip_special_tokens=True)
-    generated_tagline = decoded.split("Tagline:")[-1].strip()
+    generated_tagline = decoded.split("Tagline:")[-1].strip().split("\n")[0].strip()
+
 
 
     generated_list.append(generated_tagline)
