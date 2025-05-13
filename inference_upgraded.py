@@ -96,6 +96,6 @@ output_df = pd.DataFrame({
     "Original": reference_list,
     "Generated": generated_list
 })
-output_df.to_csv("generated_vs_original.csv", index=False)
-print("✅ Output saved to generated_vs_original.csv")
+output_df.to_csv("generated_vs_original_with_beam.csv", index=False)
+print("✅ Output saved to generated_vs_original_with_beam.csv")
 
