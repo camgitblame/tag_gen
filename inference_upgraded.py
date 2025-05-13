@@ -4,7 +4,7 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from rouge_score import rouge_scorer
 from bert_score import score as bert_score
 import wandb
-wandb.init(project="tag_gen", name="inference-upgraded")
+wandb.init(project="tag_gen", name="inference-beam")
 
 
 # 📍 Paths
@@ -50,7 +50,7 @@ for _, row in df.iterrows():
             num_beams=5,         # Beam width
             early_stopping=True, # Stop at eos
             no_repeat_ngram_size=2,  # Discourage repeats
-            do_sample=False       # No sampling in beam search
+            do_sample=False      
         )
 
 
