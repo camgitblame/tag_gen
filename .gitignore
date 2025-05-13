@@ -1,4 +1,6 @@
 /unused
 /gpt2-tagline-output
+/gpt2-RAG-output
+/gpt2-output
 __pycache__/.DS_Store
 .DS_Store
