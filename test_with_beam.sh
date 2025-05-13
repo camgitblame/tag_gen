@@ -39,4 +39,4 @@ wandb login $WANDB_API_KEY --relogin
 
 # === Run inference ===
 echo "🚀 Running inference..."
-python inference_upgraded.py
+python inference_with_beam.py
