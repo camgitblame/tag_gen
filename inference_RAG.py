@@ -47,12 +47,13 @@ for _, row in df.iterrows():
     title = row["title"]
     overview = row["overview"]
     reference = row["tagline"]
-    # 🔍 Retrieve similar overviews
+    # Retrieve similar overviews
     query_vec = encoder.encode([overview])
-    D, I = faiss_index.search(query_vec, k=3)  # top-3, adjust if needed
+    # Use the FAISS index to find 3 nearest neighbors (k =3)
+    D, I = faiss_index.search(query_vec, k=3)  
     retrieved = [all_overviews[i] for i in I[0] if all_overviews[i] != overview][:2]
 
-    # 🧠 Format prompt like training
+    # Format prompt to include retrieved overview
     retrieved_block = "\n".join([f"Retrieved Overview {j+1}: {txt}" for j, txt in enumerate(retrieved)])
     input_text = f"{retrieved_block}\nOriginal Overview: {overview}\nTagline:"
 
@@ -74,16 +75,16 @@ for _, row in df.iterrows():
         )
 
         
-
-
+    # Decode the output
     decoded = tokenizer.decode(output[0], skip_special_tokens=True)
+    # Extract the generated tagline (split by "Tagline:" and take the last part)
     generated_tagline = decoded.split("Tagline:")[-1].strip().split("\n")[0].strip()
-    # Remove "Overview" artifacts
+    # Remove "Overview" artifacts from generated tagline
     for artifact in ["Overview:", "overview", "OVERVIEW"]:
         if generated_tagline.lower().startswith(artifact.lower()):
             generated_tagline = generated_tagline[len(artifact):].strip()
 
-    # Added sentence cutoff cleanup
+    # Cut off at the first punctuation to avoid incomplete sentences in generated taglines
     import re
     match = re.search(r"(.+?[.!?])\s", generated_tagline)
     if match:
@@ -110,7 +111,7 @@ print(f"Avg ROUGE-1 F1: {sum(rouge1_scores)/len(rouge1_scores):.4f}")
 print(f"Avg ROUGE-L F1: {sum(rougeL_scores)/len(rougeL_scores):.4f}")
 print(f"Avg BERTScore F1: {F1.mean().item():.4f}")
 
-
+# Log to wandb
 wandb.log({
     "avg_rouge1_f1": sum(rouge1_scores)/len(rouge1_scores),
     "avg_rougeL_f1": sum(rougeL_scores)/len(rougeL_scores),
@@ -119,8 +120,6 @@ wandb.log({
 
 # 💾 Save to CSV
 print("📁 Saving outputs to CSV...")
-
-
 output_df = pd.DataFrame({
     "Title": df["title"].tolist(),   
     "Original": reference_list,
