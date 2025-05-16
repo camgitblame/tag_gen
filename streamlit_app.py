@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import os
+import ast
 
 # === OMDb API Key ===
 OMDB_API_KEY = "a167b60b"  
@@ -11,6 +12,16 @@ OMDB_API_KEY = "a167b60b"
 def load_metadata():
     df = pd.read_csv("movies_metadata.csv")
     df = df[df["overview"].notna() & df["tagline"].notna()]
+
+    # Convert stringified lists in the 'genres' column to actual lists
+    def extract_genres(genres_str):
+        try:
+            genres_list = ast.literal_eval(genres_str)
+            return ", ".join([g["name"] for g in genres_list]) if isinstance(genres_list, list) else "N/A"
+        except:
+            return "N/A"
+
+    df["parsed_genres"] = df["genres"].apply(extract_genres)
     return df
 
 @st.cache_data
@@ -55,6 +66,10 @@ def fetch_omdb_poster(title):
         pass
     return None
 
+
+# Add movie genre to the metadata DataFrame
+
+
 # === UI ===
 st.title("🍿 Tagline Generator")
 
@@ -71,6 +86,7 @@ if title_input:
         original_tagline = row["tagline"]
         poster_path = row.get("poster_path", "")
         backdrop_path = row.get("backdrop_path", "")
+        genre = row.get("parsed_genres", "N/A")
 
         # Construct URLs for posters
         poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else ""
@@ -123,13 +139,26 @@ if title_input:
         rag_gen = rag_row.iloc[0]["Generated"] if not rag_row.empty else "❌ Not found"
         rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "❌ Not found"
 
-        # Display text sections
+        
+        # ----------- Display text sections -----------
+        # Genre
+        st.subheader("Genre")
+        genre_tags = "".join([
+            f"<span style='background-color: #f45555; color: white; padding: 4px 10px; margin-right: 5px; border-radius: 12px; font-size: 14px;'>{g.strip()}</span>"
+            for g in genre.split(",")
+        ])
+
+        st.markdown(genre_tags, unsafe_allow_html=True)
+
+        # Overview
         st.subheader("Overview")
         st.write(overview)
 
+        # Original tagline
         st.subheader("Original Tagline")
         st.write(original_tagline)
 
+        # Baseline tagline
         st.subheader("Baseline Model Generated Tagline")
         st.markdown(
             f"""
@@ -146,7 +175,8 @@ if title_input:
             """,
             unsafe_allow_html=True
         )
-
+        
+        # RAG train and infer tagline
         st.subheader("RAG At Both Training and Inference Generated Tagline")
         st.markdown(
             f"""
@@ -164,6 +194,7 @@ if title_input:
             unsafe_allow_html=True
         )
 
+        # RAG at infer only tagline
         st.subheader("RAG At Inference Only Generated Tagline")
         st.markdown(
             f"""
