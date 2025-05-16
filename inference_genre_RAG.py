@@ -7,6 +7,9 @@ from rouge_score import rouge_scorer
 from bert_score import score as bert_score
 import wandb
 from peft import PeftModel
+from sentence_transformers import SentenceTransformer
+import faiss
+import json
 
 # 🎯 Initialize Weights & Biases for tracking experiments
 wandb.init(project="tag_gen", name="inference-genre")
@@ -34,6 +37,13 @@ model.peft_model = PeftModel.from_pretrained(model.peft_model, MODEL_DIR)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
+
+# === Load retriever and FAISS index ===
+print("📡 Loading retriever...")
+encoder = SentenceTransformer("all-MiniLM-L6-v2")
+faiss_index = faiss.read_index("faiss_overview.index")
+with open("id_to_text.json", "r") as f:
+    all_overviews = json.load(f)
 
 # === Load evaluation dataset ===
 print("📂 Loading evaluation set...")
@@ -65,7 +75,24 @@ for _, row in df.iterrows():
         genre = ["unknown"]
 
     # Build model input prompt
-    input_text = f"Overview: {overview}\nTagline:"
+    # 🔍 Retrieve similar overviews
+    query_vec = encoder.encode([overview])
+    D, I = faiss_index.search(query_vec, k=3)  # top-3, remove self-match
+    retrieved = [all_overviews[i] for i in I[0] if all_overviews[i] != overview][:2]
+
+    # Optional few-shot examples
+    example_block = (
+        "Overview: A robot is sent back in time to protect a child.\n"
+        "Tagline: He'll be back.\n\n"
+        "Overview: A magical nanny reunites a family.\n"
+        "Tagline: Practically perfect in every way.\n\n"
+    )
+
+    # Add retrieved context
+    retrieved_block = "\n".join([f"Retrieved Overview {j+1}: {txt}" for j, txt in enumerate(retrieved)])
+
+    # Combine all parts into final prompt
+    input_text = f"{example_block}{retrieved_block}\n\nOverview: {overview}\nTagline:"
     inputs = tokenizer(input_text, return_tensors="pt", truncation=True, max_length=512).to(device)
 
     # Generate tagline with genre-conditioned model
@@ -144,5 +171,5 @@ output_df = pd.DataFrame({
     "Original": reference_list,
     "Generated": generated_list
 })
-output_df.to_csv("generated_vs_original_genre.csv", index=False)
+output_df.to_csv("generated_vs_original_genre_RAG.csv", index=False)
 print("✅ Output saved to generated_vs_original_genre.csv")

@@ -36,13 +36,28 @@ def load_rag():
 def load_rag_infer():
     return pd.read_csv("generated_vs_original_RAG_infer.csv")
 
+@st.cache_data
+def load_genre_rag():
+    return pd.read_csv("generated_vs_original_genre_RAG.csv")
+
+@st.cache_data
+def load_genre_only():
+    return pd.read_csv("generated_vs_original_genre.csv")
+
 df_meta = load_metadata()
 df_base = load_baseline()
 df_rag = load_rag()
 df_rag_infer = load_rag_infer()
+df_genre_rag = load_genre_rag()
+df_genre_only = load_genre_only()
 
 # Titles common to all three sources
-valid_titles = set(df_meta["title"].str.lower()) & set(df_base["Title"].str.lower()) & set(df_rag["Title"].str.lower()) & set(df_rag_infer["Title"].str.lower())
+valid_titles = set(df_meta["title"].str.lower()) \
+    & set(df_base["Title"].str.lower()) \
+    & set(df_rag["Title"].str.lower()) \
+    & set(df_rag_infer["Title"].str.lower()) \
+    & set(df_genre_rag["Title"].str.lower()) \
+    & set(df_genre_only["Title"].str.lower())
 
 valid_titles_sorted = sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
 
@@ -139,7 +154,12 @@ if title_input:
         rag_gen = rag_row.iloc[0]["Generated"] if not rag_row.empty else "❌ Not found"
         rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "❌ Not found"
 
-        
+        genre_rag_row = df_genre_rag[df_genre_rag["Title"].str.lower() == title.lower()]
+        genre_only_row = df_genre_only[df_genre_only["Title"].str.lower() == title.lower()]
+
+        genre_rag_gen = genre_rag_row.iloc[0]["Generated"] if not genre_rag_row.empty else "❌ Not found"
+        genre_only_gen = genre_only_row.iloc[0]["Generated"] if not genre_only_row.empty else "❌ Not found"
+
         # ----------- Display text sections -----------
         # Genre
         st.subheader("Genre")
@@ -211,4 +231,39 @@ if title_input:
             """,
             unsafe_allow_html=True
         )
+
+        st.subheader("Overview + Genre Model Generated Tagline")
+        st.markdown(
+            f"""
+            <div style='
+                background-color: #e8f8ff;
+                padding: 15px;
+                border-left: 5px solid #00bcd4;
+                border-radius: 5px;
+                font-size: 16px;
+                color: #111;
+            '>
+                {genre_only_gen}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.subheader("Overview + Genre + RAG Model Generated Tagline")
+        st.markdown(
+            f"""
+            <div style='
+                background-color: #f3e8ff;
+                padding: 15px;
+                border-left: 5px solid #b266ff;
+                border-radius: 5px;
+                font-size: 16px;
+                color: #111;
+            '>
+                {genre_rag_gen}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 
