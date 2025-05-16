@@ -28,3 +28,7 @@ python-dateutil==2.9.0.post0
 sentence-transformers==2.5.1
 faiss-cpu
 # faiss-gpu; sys_platform == "linux"
+
+
+# Streamlit
+streamlit
