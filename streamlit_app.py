@@ -30,7 +30,7 @@ valid_titles = set(df_meta["title"].str.lower()) & set(df_base["Title"].str.lowe
 
 valid_titles_sorted = sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
 
-# === Check if the image URL is valid ===
+# === Check if the poster URL is valid ===
 def is_valid_url(url):
     try:
         r = requests.head(url)
@@ -53,7 +53,7 @@ def fetch_omdb_poster(title):
 # === UI ===
 st.title("🎬 Tagline Generator")
 
-title_input = st.selectbox("Choose a movie title:", valid_titles_sorted)
+title_input = st.selectbox("Choose a movie:", valid_titles_sorted)
 
 if title_input:
     match = df_meta[df_meta["title"].str.lower() == title_input.strip().lower()]
@@ -66,7 +66,7 @@ if title_input:
         poster_path = row.get("poster_path", "")
         backdrop_path = row.get("backdrop_path", "")
 
-        # Construct URLs
+        # Construct URLs for posters
         poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else ""
         backdrop_url = f"https://image.tmdb.org/t/p/w500{backdrop_path}" if pd.notna(backdrop_path) else ""
         poster_displayed = False
@@ -123,8 +123,36 @@ if title_input:
         st.write(original_tagline)
 
         st.subheader("Baseline Model Generated Tagline")
-        st.write(base_gen)
+        st.markdown(
+            f"""
+            <div style='
+                background-color: #fff8e1;
+                padding: 15px;
+                border-left: 5px solid #ffc107;
+                border-radius: 5px;
+                font-size: 16px;
+                color: #333;
+            '>
+                {base_gen}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         st.subheader("RAG Model Generated Tagline")
-        st.success(rag_gen)
-        
+        st.markdown(
+            f"""
+            <div style='
+                background-color: #e6f0ff;
+                padding: 15px;
+                border-left: 5px solid #3399ff;
+                border-radius: 5px;
+                font-size: 16px;
+                color: #111;
+            '>
+                {rag_gen}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
