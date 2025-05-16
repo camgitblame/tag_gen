@@ -30,5 +30,5 @@ faiss-cpu
 # faiss-gpu; sys_platform == "linux"
 
 
-# Streamlit
+# Streamlit app
 streamlit

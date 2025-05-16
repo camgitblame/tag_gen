@@ -23,5 +23,5 @@ PyYAML==6.0.1
 pandas==2.1.4
 python-dateutil==2.9.0.post0
 
-# Streamlit
+# Streamlit app
 streamlit
