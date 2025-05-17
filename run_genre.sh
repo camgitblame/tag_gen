@@ -3,9 +3,9 @@
 PYTHONPATH=.. python scripts/run_clm_genre.py \
   --model_name_or_path gpt2 \
   --tokenizer_name tokenizer \
-  --train_file train_with_genre.json \
+  --train_file train_with_genre_final.json \
   --do_train \
-  --output_dir gpt2-output-genre \
+  --output_dir gpt2-output-genre-boosted \
   --overwrite_output_dir \
   --num_train_epochs 5 \
   --per_device_train_batch_size 4 \

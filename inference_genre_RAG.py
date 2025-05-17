@@ -12,13 +12,13 @@ import faiss
 import json
 
 # 🎯 Initialize Weights & Biases for tracking experiments
-wandb.init(project="tag_gen", name="inference-genre")
+wandb.init(project="tag_gen", name="inference-genre-boost-RAG")
 
 # === Paths to necessary resources ===
-MODEL_DIR = "gpt2-output-genre"
+MODEL_DIR = "gpt2-output-genre-boosted"
 TOKENIZER_DIR = "tokenizer"
 GENRE_LIST_PATH = "genre_list.txt"
-EVAL_FILE = "eval_genre.csv"
+EVAL_FILE = "eval_genre_final.csv"
 
 # === Load allowed genres ===
 with open(GENRE_LIST_PATH, "r") as f:
@@ -118,7 +118,7 @@ for _, row in df.iterrows():
         generated_tagline = decoded.split("Tagline:")[-1]
     generated_tagline = generated_tagline.strip().split("\n")[0].strip()
 
-    # === Optional: truncate at first sentence-ending punctuation ===
+    # === Optiona l: truncate at first sentence-ending punctuation ===
     import re
     match = re.search(r"(.+?[.!?])\s", generated_tagline)
     if match:
@@ -171,5 +171,5 @@ output_df = pd.DataFrame({
     "Original": reference_list,
     "Generated": generated_list
 })
-output_df.to_csv("generated_vs_original_genre_RAG.csv", index=False)
-print("✅ Output saved to generated_vs_original_genre.csv")
+output_df.to_csv("generated_vs_original_genre_boosted_RAG-final.csv", index=False)
+print("✅ Output saved to generated_vs_original_genre_boosted-final.csv")

@@ -9,13 +9,13 @@ import wandb
 from peft import PeftModel
 
 # 🎯 Initialize Weights & Biases for tracking experiments
-wandb.init(project="tag_gen", name="inference-genre")
+wandb.init(project="tag_gen", name="inference-genre-boost-final")
 
 # === Paths to necessary resources ===
-MODEL_DIR = "gpt2-output-genre"
+MODEL_DIR = "gpt2-output-genre-boosted"
 TOKENIZER_DIR = "tokenizer"
 GENRE_LIST_PATH = "genre_list.txt"
-EVAL_FILE = "eval_genre.csv"
+EVAL_FILE = "eval_genre_final.csv"
 
 # === Load allowed genres ===
 with open(GENRE_LIST_PATH, "r") as f:
@@ -144,5 +144,5 @@ output_df = pd.DataFrame({
     "Original": reference_list,
     "Generated": generated_list
 })
-output_df.to_csv("generated_vs_original_genre.csv", index=False)
-print("✅ Output saved to generated_vs_original_genre.csv")
+output_df.to_csv("generated_vs_original_genre_boost-final.csv", index=False)
+print("✅ Output saved to generated_vs_original_genre_boost-final.csv")
