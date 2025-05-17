@@ -287,7 +287,7 @@ if title_input:
             f"""
             <div style='
                 background-color:
-                #f3e8ff;
+                #e6fff7;
                 padding: 15px;
                 border-left: 5px solid
                 #26a69a;
