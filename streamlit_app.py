@@ -268,10 +268,10 @@ if title_input:
             f"""
             <div style='
                 background-color:
-                #f3e8ff;
+                #fff0e6;
                 padding: 15px;
                 border-left: 5px solid
-                #b266ff;
+                #ff7043;
                 border-radius: 5px;
                 font-size: 16px;
                 color: #111;
@@ -287,10 +287,10 @@ if title_input:
             f"""
             <div style='
                 background-color:
-                #f3e8ff;
+                #e6fff7;
                 padding: 15px;
                 border-left: 5px solid
-                #b266ff;
+                #26a69a;
                 border-radius: 5px;
                 font-size: 16px;            
                 color: #111;
