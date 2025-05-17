@@ -28,9 +28,6 @@ def load_metadata():
 def load_baseline():
     return pd.read_csv("generated_vs_original_with_beam.csv")
 
-@st.cache_data
-def load_rag():
-    return pd.read_csv("generated_vs_original_RAG.csv")
 
 @st.cache_data
 def load_rag_infer():
@@ -38,26 +35,40 @@ def load_rag_infer():
 
 @st.cache_data
 def load_genre_rag():
-    return pd.read_csv("generated_vs_original_genre_RAG.csv")
+    return pd.read_csv("generated_vs_original_genre_RAG-final.csv")
 
 @st.cache_data
 def load_genre_only():
-    return pd.read_csv("generated_vs_original_genre.csv")
+    return pd.read_csv("generated_vs_original_genre-final.csv")
+
+@st.cache_data
+def load_genre_rag_boosted():
+    return pd.read_csv("generated_vs_original_genre_boosted_RAG-final.csv")
+
+@st.cache_data
+def load_genre_boosted():
+    return pd.read_csv("generated_vs_original_genre_boost-final.csv")
+
 
 df_meta = load_metadata()
 df_base = load_baseline()
-df_rag = load_rag()
 df_rag_infer = load_rag_infer()
 df_genre_rag = load_genre_rag()
 df_genre_only = load_genre_only()
+df_genre_rag_boosted = load_genre_rag_boosted()
+df_genre_boosted = load_genre_boosted()
 
-# Titles common to all three sources
+
+# Titles common to all csv sources
 valid_titles = set(df_meta["title"].str.lower()) \
     & set(df_base["Title"].str.lower()) \
-    & set(df_rag["Title"].str.lower()) \
     & set(df_rag_infer["Title"].str.lower()) \
     & set(df_genre_rag["Title"].str.lower()) \
-    & set(df_genre_only["Title"].str.lower())
+    & set(df_genre_only["Title"].str.lower()) \
+    & set(df_genre_rag_boosted["Title"].str.lower()) \
+    & set(df_genre_boosted["Title"].str.lower())
+
+
 
 valid_titles_sorted = sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
 
@@ -147,11 +158,9 @@ if title_input:
 
         # Look up generated taglines
         base_row = df_base[df_base["Title"].str.lower() == title.lower()]
-        rag_row = df_rag[df_rag["Title"].str.lower() == title.lower()]
         rag_infer_row = df_rag_infer[df_rag_infer["Title"].str.lower() == title.lower()]
 
         base_gen = base_row.iloc[0]["Generated"] if not base_row.empty else "❌ Not found"
-        rag_gen = rag_row.iloc[0]["Generated"] if not rag_row.empty else "❌ Not found"
         rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "❌ Not found"
 
         genre_rag_row = df_genre_rag[df_genre_rag["Title"].str.lower() == title.lower()]
@@ -159,6 +168,11 @@ if title_input:
 
         genre_rag_gen = genre_rag_row.iloc[0]["Generated"] if not genre_rag_row.empty else "❌ Not found"
         genre_only_gen = genre_only_row.iloc[0]["Generated"] if not genre_only_row.empty else "❌ Not found"
+
+        genre_rag_boosted_row = df_genre_rag_boosted[df_genre_rag_boosted["Title"].str.lower() == title.lower()]
+        genre_boosted_row = df_genre_boosted[df_genre_boosted["Title"].str.lower() == title.lower()]
+        genre_rag_boosted_gen = genre_rag_boosted_row.iloc[0]["Generated"] if not genre_rag_boosted_row.empty else "❌ Not found"
+        genre_boosted_gen = genre_boosted_row.iloc[0]["Generated"] if not genre_boosted_row.empty else "❌ Not found"
 
         # ----------- Display text sections -----------
         # Genre
@@ -196,26 +210,9 @@ if title_input:
             unsafe_allow_html=True
         )
         
-        # RAG train and infer tagline
-        st.subheader("RAG At Both Training and Inference Generated Tagline")
-        st.markdown(
-            f"""
-            <div style='
-                background-color: #e6f0ff;
-                padding: 15px;
-                border-left: 5px solid #3399ff;
-                border-radius: 5px;
-                font-size: 16px;
-                color: #111;
-            '>
-                {rag_gen}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
+    
         # RAG at infer only tagline
-        st.subheader("RAG At Inference Only Generated Tagline")
+        st.subheader("RAG At Inference Generated Tagline")
         st.markdown(
             f"""
             <div style='
@@ -266,4 +263,41 @@ if title_input:
             unsafe_allow_html=True
         )
 
+        st.subheader("Overview + Genre + RAG (Boosted) Model Generated Tagline")
+        st.markdown(
+            f"""
+            <div style='
+                background-color:
+                #f3e8ff;
+                padding: 15px;
+                border-left: 5px solid
+                #b266ff;
+                border-radius: 5px;
+                font-size: 16px;
+                color: #111;
+            '>
+                {genre_rag_boosted_gen}
+                </div>
+                """,
+                unsafe_allow_html=True
+        )
+
+        st.subheader("Overview + Genre (Boosted) Model Generated Tagline")
+        st.markdown(
+            f"""
+            <div style='
+                background-color:
+                #f3e8ff;
+                padding: 15px;
+                border-left: 5px solid
+                #b266ff;
+                border-radius: 5px;
+                font-size: 16px;            
+                color: #111;
+            '>
+                {genre_boosted_gen}
+                </div>
+                """,
+                unsafe_allow_html=True
+        )
 
