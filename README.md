@@ -77,21 +77,28 @@ This launches `scripts/run_clm.py` to fine-tune GPT-2 on `train.txt`.
 
 ## 🔍 Inference & Evaluation
 
-To generate taglines and compute evaluation metrics:
+To run the baseline model:
 
 ```bash
-sbatch test.sh
+sbatch test_baseline.sh
 ```
 
 This script:
 
 - Loads `gpt2-output` as the model
 - Uses `eval.csv` for testing. 
-- Runs `inference.py` to generate taglines and log metrics:
+- Runs `inference_baseline.py` to generate taglines and log metrics:
   - **ROUGE-1 / ROUGE-L** for lexical overlap
   - **BERTScore F1** for semantic similarity
 
 Results are logged to [Weights & Biases](https://wandb.ai/).
+
+
+To run the RAG at inference model:
+
+```bash
+sbatch test_RAG_at_infer.sh
+```
 
 
 ## Streamlit App 
