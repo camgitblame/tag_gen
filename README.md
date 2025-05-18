@@ -59,7 +59,7 @@ sbatch run.sh
 This launches `scripts/run_clm.py` to fine-tune GPT-2 on `train.txt`. 
 
 
-## 🔍 Inference & Evaluation
+## Inference & Evaluation
 
   -  To run the baseline model:
 
