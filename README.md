@@ -92,7 +92,7 @@ A companion Streamlit app can be used to interactively explore generated tagline
 Run the app locally:
 
 ```bash
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 We deployed the app at:
 
