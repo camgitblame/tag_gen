@@ -77,7 +77,7 @@ This launches `scripts/run_clm.py` to fine-tune GPT-2 on `train.txt`.
 
 ## 🔍 Inference & Evaluation
 
-To run the baseline model:
+  -  To run the baseline model:
 
 ```bash
 sbatch test_baseline.sh
@@ -94,10 +94,10 @@ This script:
 Results are logged to [Weights & Biases](https://wandb.ai/).
 
 
-To run the RAG at inference model:
+  - To run the RAG at inference model:
 
 ```bash
-sbatch test_RAG_at_infer.sh
+sbatch test_RAG_infer.sh
 ```
 
 
