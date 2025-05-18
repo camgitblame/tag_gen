@@ -10,22 +10,6 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 
 ---
 
-## Project Structure
-
-```
-.
-├── run.sh                 # SLURM script for training
-├── test.sh                # SLURM script for inference
-├── setup_conda.sh         # Conda env setup with CUDA and proxy
-├── inference.py           # Generates taglines and computes metrics
-├── preprocess_taglines.py # Cleans and formats mdata
-├── create_eval_csv.py     # Creates eval.csv for inference testing
-├── movies_metadata.csv    # Raw dataset
-├── requirements.txt       # Python dependencies
-```
-
----
-
 ## Environment Setup
 
 ### 1. HPC Environment Setup
