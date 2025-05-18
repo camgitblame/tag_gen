@@ -15,7 +15,7 @@ wandb.init(project="tag_gen", name="inference-genre-boost-final")
 MODEL_DIR = "gpt2-output-genre-boosted"
 TOKENIZER_DIR = "tokenizer"
 GENRE_LIST_PATH = "genre_list.txt"
-EVAL_FILE = "eval_genre_final.csv"
+EVAL_FILE = "eval_genre.csv"
 
 # === Load allowed genres ===
 with open(GENRE_LIST_PATH, "r") as f:
