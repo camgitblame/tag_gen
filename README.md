@@ -50,7 +50,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ## Training the Model
 
-Use the provided script to train baseline model:
+To train baseline model:
 
 ```bash
 sbatch run.sh
@@ -61,7 +61,7 @@ This launches `scripts/run_clm.py` to fine-tune GPT-2 on `train.txt`.
 
 ## Inference & Evaluation
 
-  -  To run the baseline model:
+  -  To test the baseline model:
 
 ```bash
 sbatch test_baseline.sh
@@ -69,7 +69,7 @@ sbatch test_baseline.sh
 
 This script:
 
-- Loads `gpt2-output` as the model
+- Loads `gpt2-output` 
 - Uses `eval.csv` for testing. 
 - Runs `inference_baseline.py` to generate taglines and log metrics:
   - **ROUGE-1 / ROUGE-L** for lexical overlap
@@ -78,7 +78,7 @@ This script:
 Results are logged to [Weights & Biases](https://wandb.ai/).
 
 
-  - To run the RAG at inference model:
+  - To test the RAG at inference model:
 
 ```bash
 sbatch test_RAG_infer.sh
@@ -87,14 +87,14 @@ sbatch test_RAG_infer.sh
 
 ## Streamlit App 
 
-A companion Streamlit app can be used to interactively explore generated tagline.
+A companion Streamlit app can be used to interactively explore generated taglines from 6 models.
 
-Run the app locally
+Run the app locally:
 
 ```bash
 streamlit run app.py
 ```
-We deployed at:
+We deployed the app at:
 
 https://taggen.streamlit.app/
 
@@ -112,13 +112,4 @@ Each inference file generates a "generated_vs..." csv that shows a side by side 
 
 ## Dataset
 
-If using this work, cite the dataset:
-
-```
-@dataset{rounakbanik_2017,
-  author       = {Rounak Banik},
-  title        = {The Movies Dataset},
-  year         = 2017,
-  url          = {https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset}
-}
-```
+We used the The Movies Dataset available on [Kaggle]([https://taggen.streamlit.app/](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset))
