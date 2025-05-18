@@ -112,4 +112,4 @@ Each inference file generates a "generated_vs..." csv that shows a side by side 
 
 ## Dataset
 
-We used the The Movies Dataset available on [Kaggle]([https://taggen.streamlit.app/](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset))
+We used the The Movies Dataset available on [Kaggle](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset).
