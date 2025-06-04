@@ -4,9 +4,13 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 
 ---
 
-[View our Streamlit App](https://taggen.streamlit.app/)
+[Streamlit App](https://taggen.streamlit.app/)
 
-[View our W&B Report](https://api.wandb.ai/links/camgitblame-city-university-of-london/xuucaogs)
+[Railway App](https://tag-gen-production.up.railway.app/)  
+
+[W&B Report](https://api.wandb.ai/links/camgitblame-city-university-of-london/xuucaogs)
+
+
 
 ---
 
