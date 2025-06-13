@@ -4,9 +4,8 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 
 ---
 
-[Streamlit App](https://taggen.streamlit.app/)
 
-[Railway App](https://tag-gen-production.up.railway.app/)  
+[Streamlit App](https://tag-gen-production.up.railway.app/)  
 
 [W&B Report](https://api.wandb.ai/links/camgitblame-city-university-of-london/xuucaogs)
 
@@ -100,7 +99,7 @@ streamlit run streamlit_app.py
 ```
 We deployed the app at:
 
-https://taggen.streamlit.app/
+https://tag-gen-production.up.railway.app/
 
 ## Appendix
 
