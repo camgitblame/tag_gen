@@ -8,33 +8,21 @@ import ast
 OMDB_API_KEY = "a167b60b"  
 
 # === Load metadata and generations ===
-@st.cache_data(show_spinner=True)
+@st.cache_data
 def load_metadata():
-    try:
-        if not os.path.exists("movies_metadata.csv"):
-            st.error("'movies_metadata.csv' not found in the app directory.")
-            return pd.DataFrame()
+    df = pd.read_csv("movies_metadata.csv")
+    df = df[df["overview"].notna() & df["tagline"].notna()]
 
-        st.info("📂 Loading movies_metadata.csv...")
-        df = pd.read_csv("movies_metadata.csv")
+    # Convert stringified lists in the 'genres' column to actual lists
+    def extract_genres(genres_str):
+        try:
+            genres_list = ast.literal_eval(genres_str)
+            return ", ".join([g["name"] for g in genres_list]) if isinstance(genres_list, list) else "N/A"
+        except:
+            return "N/A"
 
-        df = df[df["overview"].notna() & df["tagline"].notna()]
-
-        def extract_genres(genres_str):
-            try:
-                genres_list = ast.literal_eval(genres_str)
-                return ", ".join([g["name"] for g in genres_list]) if isinstance(genres_list, list) else "N/A"
-            except:
-                return "N/A"
-
-        df["parsed_genres"] = df["genres"].apply(extract_genres)
-
-        st.success(f"Loaded {len(df)} entries.")
-        return df
-
-    except Exception as e:
-        st.error(f"Failed to load metadata: {e}")
-        return pd.DataFrame()
+    df["parsed_genres"] = df["genres"].apply(extract_genres)
+    return df
 
 @st.cache_data
 def load_baseline():
