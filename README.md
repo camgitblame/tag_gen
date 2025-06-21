@@ -6,7 +6,7 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 
 [Streamlit App](https://tag-gen-production.up.railway.app/)  
 
-[Or](https://taggen.streamlit.app/)  
+[Streamlit Backup](https://taggen.streamlit.app/)  
 
 [W&B Report](https://api.wandb.ai/links/camgitblame-city-university-of-london/xuucaogs)
 
@@ -17,8 +17,6 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 ## Environment Setup
 
 ### 1. HPC Environment Setup
-
-If you're using  Hyperion:
 
 ```bash
 source /opt/flight/etc/setup.sh
