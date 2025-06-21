@@ -18,8 +18,6 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 
 ### 1. HPC Environment Setup
 
-If you're using  Hyperion:
-
 ```bash
 source /opt/flight/etc/setup.sh
 flight env activate gridware
