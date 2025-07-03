@@ -97,7 +97,7 @@ streamlit run streamlit_app.py
 ```
 We deployed the app at:
 
-https://taggen.up.railway.app/ or https://taggen.streamlit.app/
+https://taggen.streamlit.app/
 
 ## Appendix
 
