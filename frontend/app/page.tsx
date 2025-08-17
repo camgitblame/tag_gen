@@ -47,10 +47,21 @@ export default function Home() {
     setLoading(true);
     try {
       const response = await fetch(`${API_URL}/movie/${encodeURIComponent(title)}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      setMovieData(data);
+      
+      // Validate the data structure
+      if (data && typeof data === 'object') {
+        setMovieData(data);
+      } else {
+        console.error('Invalid movie data received:', data);
+        setMovieData(null);
+      }
     } catch (error) {
       console.error('Error fetching movie data:', error);
+      setMovieData(null);
     } finally {
       setLoading(false);
     }
@@ -142,7 +153,7 @@ export default function Home() {
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2 text-gray-200">Genres</h3>
                     <div className="flex flex-wrap gap-2">
-                      {movieData.genres.map((genre, index) => (
+                      {(movieData.genres || []).map((genre, index) => (
                         <span
                           key={index}
                           className="bg-red-600 text-white px-3 py-1 rounded-full text-sm"
@@ -170,42 +181,42 @@ export default function Home() {
                 
                 <TaglineCard
                   title="Baseline Model Generated Tagline"
-                  content={movieData.generated_taglines.baseline}
+                  content={movieData.generated_taglines?.baseline || 'No tagline available'}
                   bgColor="bg-yellow-900"
                   borderColor="border-yellow-400"
                 />
 
                 <TaglineCard
                   title="RAG At Inference Generated Tagline"
-                  content={movieData.generated_taglines.rag_infer}
+                  content={movieData.generated_taglines?.rag_infer || 'No tagline available'}
                   bgColor="bg-green-900"
                   borderColor="border-green-400"
                 />
 
                 <TaglineCard
                   title="Overview + Genre Model Generated Tagline"
-                  content={movieData.generated_taglines.genre_only}
+                  content={movieData.generated_taglines?.genre_only || 'No tagline available'}
                   bgColor="bg-blue-900"
                   borderColor="border-blue-400"
                 />
 
                 <TaglineCard
                   title="Overview + Genre + RAG Model Generated Tagline"
-                  content={movieData.generated_taglines.genre_rag}
+                  content={movieData.generated_taglines?.genre_rag || 'No tagline available'}
                   bgColor="bg-purple-900"
                   borderColor="border-purple-400"
                 />
 
                 <TaglineCard
                   title="Overview + Genre + RAG (Boosted) Model Generated Tagline"
-                  content={movieData.generated_taglines.genre_rag_boosted}
+                  content={movieData.generated_taglines?.genre_rag_boosted || 'No tagline available'}
                   bgColor="bg-orange-900"
                   borderColor="border-orange-400"
                 />
 
                 <TaglineCard
                   title="Overview + Genre (Boosted) Model Generated Tagline"
-                  content={movieData.generated_taglines.genre_boosted}
+                  content={movieData.generated_taglines?.genre_boosted || 'No tagline available'}
                   bgColor="bg-teal-900"
                   borderColor="border-teal-400"
                 />

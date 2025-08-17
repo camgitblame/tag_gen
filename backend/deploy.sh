@@ -2,10 +2,10 @@
 
 # Cloud Run deployment script for Tagline Generator API
 
-# Set your project variables
-PROJECT_ID="your-project-id"  # Replace with your GCP project ID
+# Set project variables
+PROJECT_ID="tagline-469307"  #  project ID
 SERVICE_NAME="tagline-generator-api"
-REGION="us-central1"  # Change if needed
+REGION="us-central1"  
 
 # Build and deploy to Cloud Run
 echo "Building and deploying to Cloud Run..."

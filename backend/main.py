@@ -12,7 +12,13 @@ app = FastAPI(title="Tagline Generator API", version="1.0.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # replace with Vercel domain
+    allow_origins=[
+        "http://localhost:3000",  # Local development
+        "https://tagline-gmcpnqvve-cams-projects-03a5c6f6.vercel.app",  # Current Production Vercel
+        "https://tagline-474x9zlus-cams-projects-03a5c6f6.vercel.app",  # Previous deployment
+        "https://tagline-gen.vercel.app",  # Custom domain if you set one up
+        "*",  # Allow all origins for now to debug
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,6 +26,7 @@ app.add_middleware(
 
 # OMDb API Key
 OMDB_API_KEY = "a167b60b"
+
 
 # Cache data loading functions
 @lru_cache(maxsize=1)
@@ -30,36 +37,47 @@ def load_metadata():
     def extract_genres(genres_str):
         try:
             genres_list = ast.literal_eval(genres_str)
-            return ", ".join([g["name"] for g in genres_list]) if isinstance(genres_list, list) else "N/A"
+            return (
+                ", ".join([g["name"] for g in genres_list])
+                if isinstance(genres_list, list)
+                else "N/A"
+            )
         except:
             return "N/A"
 
     df["parsed_genres"] = df["genres"].apply(extract_genres)
     return df
 
+
 @lru_cache(maxsize=1)
 def load_baseline():
     return pd.read_csv("generated_vs_original_with_beam.csv")
+
 
 @lru_cache(maxsize=1)
 def load_rag_infer():
     return pd.read_csv("generated_vs_original_RAG_infer.csv")
 
+
 @lru_cache(maxsize=1)
 def load_genre_rag():
     return pd.read_csv("generated_vs_original_genre_RAG-final.csv")
+
 
 @lru_cache(maxsize=1)
 def load_genre_only():
     return pd.read_csv("generated_vs_original_genre-final.csv")
 
+
 @lru_cache(maxsize=1)
 def load_genre_rag_boosted():
     return pd.read_csv("generated_vs_original_genre_boosted_RAG-final.csv")
 
+
 @lru_cache(maxsize=1)
 def load_genre_boosted():
     return pd.read_csv("generated_vs_original_genre_boost-final.csv")
+
 
 @lru_cache(maxsize=1)
 def get_valid_titles():
@@ -71,15 +89,20 @@ def get_valid_titles():
     df_genre_rag_boosted = load_genre_rag_boosted()
     df_genre_boosted = load_genre_boosted()
 
-    valid_titles = set(df_meta["title"].str.lower()) \
-        & set(df_base["Title"].str.lower()) \
-        & set(df_rag_infer["Title"].str.lower()) \
-        & set(df_genre_rag["Title"].str.lower()) \
-        & set(df_genre_only["Title"].str.lower()) \
-        & set(df_genre_rag_boosted["Title"].str.lower()) \
+    valid_titles = (
+        set(df_meta["title"].str.lower())
+        & set(df_base["Title"].str.lower())
+        & set(df_rag_infer["Title"].str.lower())
+        & set(df_genre_rag["Title"].str.lower())
+        & set(df_genre_only["Title"].str.lower())
+        & set(df_genre_rag_boosted["Title"].str.lower())
         & set(df_genre_boosted["Title"].str.lower())
+    )
 
-    return sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
+    return sorted(
+        {title for title in df_meta["title"] if title.lower() in valid_titles}
+    )
+
 
 def is_valid_url(url):
     try:
@@ -87,6 +110,7 @@ def is_valid_url(url):
         return r.status_code == 200
     except:
         return False
+
 
 def fetch_omdb_poster(title):
     try:
@@ -99,14 +123,17 @@ def fetch_omdb_poster(title):
         pass
     return None
 
+
 @app.get("/")
 async def root():
     return {"message": "Tagline Generator API", "version": "1.0.0"}
+
 
 @app.get("/movies", response_model=List[str])
 async def get_movies():
     """Get list of all available movie titles"""
     return get_valid_titles()
+
 
 @app.get("/movie/{title}")
 async def get_movie_details(title: str):
@@ -121,10 +148,10 @@ async def get_movie_details(title: str):
 
     # Find movie in metadata
     match = df_meta[df_meta["title"].str.lower() == title.strip().lower()]
-    
+
     if match.empty:
         raise HTTPException(status_code=404, detail="Movie not found")
-    
+
     row = match.iloc[0]
     movie_title = row["title"]
     overview = row["overview"]
@@ -135,9 +162,15 @@ async def get_movie_details(title: str):
 
     # Get poster URL
     poster_url = None
-    tmdb_poster = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else ""
-    tmdb_backdrop = f"https://image.tmdb.org/t/p/w500{backdrop_path}" if pd.notna(backdrop_path) else ""
-    
+    tmdb_poster = (
+        f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else ""
+    )
+    tmdb_backdrop = (
+        f"https://image.tmdb.org/t/p/w500{backdrop_path}"
+        if pd.notna(backdrop_path)
+        else ""
+    )
+
     if tmdb_poster and is_valid_url(tmdb_poster):
         poster_url = tmdb_poster
     elif tmdb_backdrop and is_valid_url(tmdb_backdrop):
@@ -169,9 +202,10 @@ async def get_movie_details(title: str):
             "genre_only": genre_only_tagline,
             "genre_rag": genre_rag_tagline,
             "genre_rag_boosted": genre_rag_boosted_tagline,
-            "genre_boosted": genre_boosted_tagline
-        }
+            "genre_boosted": genre_boosted_tagline,
+        },
     }
+
 
 @app.get("/health")
 async def health_check():
