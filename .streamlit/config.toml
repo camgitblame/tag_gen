@@ -1,0 +1,7 @@
+[theme]
+base="dark"  # or "light"
+primaryColor="#ffc107"         # button, highlight, accent color
+backgroundColor="#0e1117"      # main app background
+secondaryBackgroundColor="#262730"  # sidebar, widget background
+textColor="#FFFFFF"            # text in the app
+font="sans serif"              # "monospace" / "serif"
