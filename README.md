@@ -93,19 +93,39 @@ Results are logged to [Weights & Biases](https://wandb.ai/).
 sbatch test_RAG_infer.sh
 ```
 
+## Deployment
 
-## Streamlit App 
+- **Backend**: FastAPI (Python) for movie data and generated taglines via REST API
+- **Frontend**: Next.js (TypeScript + React)
+- **Deployment**: 
+  - Backend: Google Cloud Run
+  - Frontend: Vercel
 
-A companion Streamlit app can be used to interactively explore generated taglines from 6 models.
+## Local Development
 
-Run the app locally:
+1. **Setup development environment:**
+   ```bash
+   chmod +x setup-dev.sh
+   ./setup-dev.sh
+   ```
 
-```bash
-streamlit run streamlit_app.py
-```
-We deployed the app at:
+2. **Run backend:**
+   ```bash
+   cd backend
+   source venv/bin/activate
+   uvicorn main:app --reload --port 8080
+   ```
 
-https://taggen.streamlit.app/
+3. **Run frontend:**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+4. **Access the application:**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8080
+   - API Documentation: http://localhost:8080/docs
 
 ## Appendix
 
