@@ -98,7 +98,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">🍿 Tagline Generator</h1>
-          <p className="text-gray-300">AI-generated movie taglines across different models</p>
+          <p className="text-gray-300">AI-generated movie taglines with fine-tuned GPT-2, RAG and genre conditioning</p>
         </div>
 
         <div className="max-w-4xl mx-auto">
