@@ -14,10 +14,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # Local development
-        "https://tagline-gmcpnqvve-cams-projects-03a5c6f6.vercel.app",  # Current Production Vercel
-        "https://tagline-474x9zlus-cams-projects-03a5c6f6.vercel.app",  # Previous deployment
+        "https://tagline-r4u8sod5s-cams-projects-03a5c6f6.vercel.app",  # Latest Production Vercel
+        "https://tagline-pf2bbhu37-cams-projects-03a5c6f6.vercel.app",  # Earlier deployment
+        "https://tagline-gmcpnqvve-cams-projects-03a5c6f6.vercel.app",  # Earlier deployment
+        "https://tagline-474x9zlus-cams-projects-03a5c6f6.vercel.app",  # Earlier deployment
         "https://tagline-gen.vercel.app",  # Custom domain if you set one up
-        "*",  # Allow all origins for now to debug
+        "*",  # Allow all origins to debug
     ],
     allow_credentials=True,
     allow_methods=["*"],

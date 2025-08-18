@@ -26,6 +26,7 @@ export default function Home() {
   const [selectedMovie, setSelectedMovie] = useState<string>('');
   const [movieData, setMovieData] = useState<MovieData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMovies, setLoadingMovies] = useState(true);
 
   useEffect(() => {
     fetchMovies();
@@ -38,6 +39,8 @@ export default function Home() {
       setMovies(data);
     } catch (error) {
       console.error('Error fetching movies:', error);
+    } finally {
+      setLoadingMovies(false);
     }
   };
 
@@ -99,24 +102,31 @@ export default function Home() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-8 border border-gray-700">
-            <label htmlFor="movie-select" className="block text-sm font-medium text-gray-300 mb-2">
-              Choose a movie:
-            </label>
-            <select
-              id="movie-select"
-              value={selectedMovie}
-              onChange={handleMovieSelect}
-              className="w-full p-3 border border-gray-600 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Select a movie...</option>
-              {movies.map((movie) => (
-                <option key={movie} value={movie}>
-                  {movie}
-                </option>
-              ))}
-            </select>
-          </div>
+          {loadingMovies ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <p className="mt-2 text-gray-300">Loading movies list...</p>
+            </div>
+          ) : (
+            <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-8 border border-gray-700">
+              <label htmlFor="movie-select" className="block text-sm font-medium text-gray-300 mb-2">
+                Choose a movie:
+              </label>
+              <select
+                id="movie-select"
+                value={selectedMovie}
+                onChange={handleMovieSelect}
+                className="w-full p-3 border border-gray-600 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select a movie...</option>
+                {movies.map((movie) => (
+                  <option key={movie} value={movie}>
+                    {movie}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {loading && (
             <div className="text-center py-8">
