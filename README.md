@@ -114,18 +114,15 @@ sbatch test_RAG_infer.sh
    cd backend
    source venv/bin/activate
    uvicorn main:app --reload --port 8080
+   # http://localhost:8080
    ```
 
 3. **Run frontend:**
    ```bash
    cd frontend
    npm run dev
+   # http://localhost:3000
    ```
-
-4. **Access the application:**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8080
-   - API Documentation: http://localhost:8080/docs
 
 ## Appendix
 
