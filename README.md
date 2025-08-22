@@ -1,11 +1,8 @@
 # Movie Tagline Generator
 
-This project fine-tunes variants of GPT-2 to generate movie taglines based on metadata such as plot overviews and genres. It includes baseline generation, genre conditioning, and retrieval-augmented generation (RAG). It supports training, inference, evaluation with ROUGE and BERTScore, and includes a Streamlit demo for exploration.
+This project fine-tunes variants of GPT-2 to generate movie taglines based on metadata such as plot overviews and genres. It includes baseline generation, genre conditioning, and retrieval-augmented generation (RAG). It supports training, inference, evaluation with ROUGE and BERTScore. 
 
----
-
-
-[Streamlit App](https://taggen.streamlit.app/)  
+--- 
 
 [W&B Report](https://api.wandb.ai/links/camgitblame-city-university-of-london/xuucaogs)
 
@@ -16,7 +13,7 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 - **Machine Learning**: PyTorch, Transformers (GPT-2), FAISS (RAG)
 - **Backend**: FastAPI
 - **Frontend**: Next.js, React, TypeScript, Tailwind CSS
-- **Deployment**: Google Cloud Run, Vercel, Docker
+- **Deployment**: Google Cloud Run, Docker
 - **Evaluation**: Weights & Biases (ROUGE, BERTScore)
 
 ---
@@ -95,11 +92,9 @@ sbatch test_RAG_infer.sh
 
 ## Deployment
 
-- **Backend**: FastAPI (Python) for movie data and generated taglines via REST API
-- **Frontend**: Next.js (TypeScript + React)
-- **Deployment**: 
-  - Backend: Google Cloud Run
-  - Frontend: Vercel
+- **Backend**: FastAPI, Python
+- **Frontend**: Next.js, TypeScript, React
+- **Deployment**: GCP
 
 ## Local Development
 
