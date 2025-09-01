@@ -20,19 +20,19 @@ module load gnu
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate tag_gen_env
 
-# === PROXY CONFIG (if needed) ===
+# === PROXY CONFIG ===
 export https_proxy=http://hpc-proxy00.city.ac.uk:3128
 export http_proxy=http://hpc-proxy00.city.ac.uk:3128
 
 # === VERIFY GPU ===
 echo "CUDA Visible Devices: $CUDA_VISIBLE_DEVICES"
 nvidia-smi
-python -c "import torch; print('✅ CUDA Available:', torch.cuda.is_available())"
+python -c "import torch; print('CUDA Available:', torch.cuda.is_available())"
 
 
-# 🌐 Login to WandB
+# Login to WandB
 export WANDB_API_KEY=f1b1dcb5ebf893b856630d4481b7d7cd05101b45
-echo "🔐 Logging into WandB..."
+echo "Logging into WandB..."
 wandb login $WANDB_API_KEY --relogin
 
 export WANDB_PROJECT=tag_gen

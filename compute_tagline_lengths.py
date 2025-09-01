@@ -9,7 +9,8 @@ df = df[df["tagline"].notna() & df["tagline"].str.strip().ne("")]
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
 # === Compute token lengths ===
-df["token_length"] = df["tagline"].apply(lambda x: len(tokenizer.encode(x, add_special_tokens=False)))
+df["token_length"] = df["tagline"].apply(
+    lambda x: len(tokenizer.encode(x, add_special_tokens=False)))
 
 # === Calculate summary stats ===
 stats = {
@@ -31,4 +32,4 @@ summary_df.columns = [
 ]
 summary_df.to_csv("tagline_token_stats.csv", index=False)
 
-print("✅ Stats saved to 'tagline_token_stats.csv' ")
+print("Stats saved to 'tagline_token_stats.csv' ")

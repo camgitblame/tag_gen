@@ -4,7 +4,7 @@ from transformers import GPT2Tokenizer
 
 
 def load_and_clean(path="movies_metadata.csv"):
-    print("[📂] Loading dataset...")
+    print("[Loading] Loading dataset...")
     df = pd.read_csv(path, low_memory=False)
 
     df = df[df["overview"].notna() & df["tagline"].notna()]
@@ -37,29 +37,31 @@ def extract_and_collect_genres(df):
 
 
 def format_with_genre(df):
-    print("[🪄] Formatting rows and extracting genre...")
+    print("Formatting rows and extracting genre...")
     df["overview"] = df["overview"].str.strip()
     df["tagline"] = df["tagline"].str.strip()
-    df = df[df["overview"].str.len() + df["tagline"].str.len() < 1000]  # Limit combined length
+    df = df[df["overview"].str.len() + df["tagline"].str.len() <
+            1000]  # Limit combined length
     return df[["overview", "tagline", "genre"]]
 
 
 def save_json(df, output_path="train_with_genre.json"):
-    print(f"[💾] Saving {len(df)} examples to {output_path}...")
+    print(f"Saving {len(df)} examples to {output_path}...")
     df.to_json(output_path, orient="records", lines=True)
 
 
 def save_eval_csv(df, output_path="eval_genre.csv", num_samples=100):
-    print(f"[📁] Saving {num_samples} examples to {output_path}...")
-    eval_df = df[["title", "genre", "overview", "tagline"]].head(num_samples).copy()
+    print(f"Saving {num_samples} examples to {output_path}...")
+    eval_df = df[["title", "genre", "overview", "tagline"]].head(
+        num_samples).copy()
     eval_df.to_csv(output_path, index=False)
 
 
 def setup_tokenizer(tokenizer_path="gpt2", save_path="tokenizer/"):
-    print("[🧠] Loading tokenizer...")
+    print("Loading tokenizer...")
     tokenizer = GPT2Tokenizer.from_pretrained(tokenizer_path)
     tokenizer.save_pretrained(save_path)
-    print(f"[💾] Tokenizer saved to {save_path}")
+    print(f"Tokenizer saved to {save_path}")
     return tokenizer
 
 
@@ -76,5 +78,5 @@ if __name__ == "__main__":
             f.write(f"{genre}\n")
 
     setup_tokenizer("gpt2", "tokenizer/")
-    print("[✅] Preprocessing complete.")
-    print(f"[📚] Extracted {len(genre_list)} genres: {genre_list}")
+    print("[Complete] Preprocessing complete.")
+    print(f"Extracted {len(genre_list)} genres: {genre_list}")

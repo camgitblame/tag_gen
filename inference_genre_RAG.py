@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import json
 
-# 🎯 Initialize Weights & Biases for tracking experiments
+# Initialize Weights & Biases for tracking experiments
 wandb.init(project="tag_gen", name="inference-genre-boost-RAG")
 
 # === Paths to necessary resources ===
@@ -25,7 +25,7 @@ with open(GENRE_LIST_PATH, "r") as f:
     genre_list = [line.strip() for line in f if line.strip()]
 
 # === Load tokenizer and genre-conditioned model ===
-print("🚀 Loading genre-conditioned model...")
+print("Loading genre-conditioned model...")
 tokenizer = GPT2Tokenizer.from_pretrained(TOKENIZER_DIR)
 
 model = GenreConditionedModel(
@@ -39,16 +39,17 @@ model.to(device)
 model.eval()
 
 # === Load retriever and FAISS index ===
-print("📡 Loading retriever...")
+print("Loading retriever...")
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
 faiss_index = faiss.read_index("faiss_overview.index")
 with open("id_to_text.json", "r") as f:
     all_overviews = json.load(f)
 
 # === Load evaluation dataset ===
-print("📂 Loading evaluation set...")
+print("Loading evaluation set...")
 df = pd.read_csv(EVAL_FILE)
-df = df[df["overview"].notna() & df["tagline"].notna() & df["genre"].notna()].head(100)
+df = df[df["overview"].notna() & df["tagline"].notna() &
+        df["genre"].notna()].head(100)
 
 # === Setup evaluation metrics ===
 rouge = rouge_scorer.RougeScorer(["rouge1", "rougeL"], use_stemmer=True)
@@ -56,7 +57,7 @@ generated_list = []
 reference_list = []
 
 # === Start inference loop ===
-print("🔎 Running inference...")
+print("Running inference...")
 for _, row in df.iterrows():
     title = row["title"]
     overview = row["overview"]
@@ -65,7 +66,8 @@ for _, row in df.iterrows():
     # Parse genre column (stored as stringified lists)
     genre_raw = row["genre"]
     try:
-        genre = ast.literal_eval(genre_raw) if isinstance(genre_raw, str) else genre_raw
+        genre = ast.literal_eval(genre_raw) if isinstance(
+            genre_raw, str) else genre_raw
     except Exception:
         genre = []
 
@@ -75,10 +77,11 @@ for _, row in df.iterrows():
         genre = ["unknown"]
 
     # Build model input prompt
-    # 🔍 Retrieve similar overviews
+    # Retrieve similar overviews
     query_vec = encoder.encode([overview])
     D, I = faiss_index.search(query_vec, k=3)  # top-3, remove self-match
-    retrieved = [all_overviews[i] for i in I[0] if all_overviews[i] != overview][:2]
+    retrieved = [all_overviews[i]
+                 for i in I[0] if all_overviews[i] != overview][:2]
 
     # Optional few-shot examples
     example_block = (
@@ -89,11 +92,13 @@ for _, row in df.iterrows():
     )
 
     # Add retrieved context
-    retrieved_block = "\n".join([f"Retrieved Overview {j+1}: {txt}" for j, txt in enumerate(retrieved)])
+    retrieved_block = "\n".join(
+        [f"Retrieved Overview {j+1}: {txt}" for j, txt in enumerate(retrieved)])
 
     # Combine all parts into final prompt
     input_text = f"{example_block}{retrieved_block}\n\nOverview: {overview}\nTagline:"
-    inputs = tokenizer(input_text, return_tensors="pt", truncation=True, max_length=512).to(device)
+    inputs = tokenizer(input_text, return_tensors="pt",
+                       truncation=True, max_length=512).to(device)
 
     # Generate tagline with genre-conditioned model
     with torch.no_grad():
@@ -128,8 +133,8 @@ for _, row in df.iterrows():
     quote_chars = '\"“”‘’‟′ʼ`´'
 
     # Remove them from anywhere in the tagline
-    generated_tagline = generated_tagline.translate(str.maketrans('', '', quote_chars))
-
+    generated_tagline = generated_tagline.translate(
+        str.maketrans('', '', quote_chars))
 
     # === Cleanup: remove unwanted 'Overview:' remnants ===
     for artifact in ["Overview:", "overview", "OVERVIEW"]:
@@ -141,7 +146,7 @@ for _, row in df.iterrows():
     reference_list.append(reference)
 
 # === Calculate ROUGE scores ===
-print("📊 Evaluating ROUGE...")
+print("Evaluating ROUGE...")
 rouge1_scores, rougeL_scores = [], []
 for ref, hyp in zip(reference_list, generated_list):
     scores = rouge.score(ref, hyp)
@@ -149,11 +154,11 @@ for ref, hyp in zip(reference_list, generated_list):
     rougeL_scores.append(scores["rougeL"].fmeasure)
 
 # === Calculate BERTScore ===
-print("📊 Evaluating BERTScore...")
+print("Evaluating BERTScore...")
 P, R, F1 = bert_score(generated_list, reference_list, lang="en", verbose=True)
 
 # === Print & log metrics ===
-print("\n📈 Evaluation Summary:")
+print("\nEvaluation Summary:")
 print(f"Avg ROUGE-1 F1: {sum(rouge1_scores)/len(rouge1_scores):.4f}")
 print(f"Avg ROUGE-L F1: {sum(rougeL_scores)/len(rougeL_scores):.4f}")
 print(f"Avg BERTScore F1: {F1.mean().item():.4f}")
@@ -171,5 +176,6 @@ output_df = pd.DataFrame({
     "Original": reference_list,
     "Generated": generated_list
 })
-output_df.to_csv("generated_vs_original_genre_boosted_RAG-final.csv", index=False)
-print("✅ Output saved to generated_vs_original_genre_boosted-final.csv")
+output_df.to_csv(
+    "generated_vs_original_genre_boosted_RAG-final.csv", index=False)
+print("Output saved to generated_vs_original_genre_boosted-final.csv")

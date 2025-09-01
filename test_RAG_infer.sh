@@ -11,7 +11,7 @@
 #SBATCH --error=results/%x_%j.err             # Stderr log
 
 # === ENV SETUP ===
-echo "🔧 Initializing environment..."
+echo "Initializing environment..."
 source /opt/flight/etc/setup.sh
 flight env activate gridware
 module load libs/nvidia-cuda/11.2.0/bin
@@ -22,21 +22,21 @@ export http_proxy=http://hpc-proxy00.city.ac.uk:3128
 export TORCH_HOME=/mnt/data/public/torch
 
 # Activate conda and env
-echo "🐍 Activating Conda environment..."
+echo "Activating Conda environment..."
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate tag_gen_env
 
 # Print device info
-echo "🔍 CUDA Visible Devices: $CUDA_VISIBLE_DEVICES"
-nvidia-smi || echo "⚠️ Could not run nvidia-smi"
-python -c "import torch; print('✅ CUDA Available:', torch.cuda.is_available())"
+echo "CUDA Visible Devices: $CUDA_VISIBLE_DEVICES"
+nvidia-smi || echo "Could not run nvidia-smi"
+python -c "import torch; print('CUDA Available:', torch.cuda.is_available())"
 
 
-# 🌐 Login to WandB
+# Login to WandB
 export WANDB_API_KEY=f1b1dcb5ebf893b856630d4481b7d7cd05101b45
-echo "🔐 Logging into WandB..."
+echo "Logging into WandB..."
 wandb login $WANDB_API_KEY --relogin
 
 # === Run inference ===
-echo "🚀 Running inference with RAG only at runtime..."
+echo "Running inference with RAG only at runtime..."
 python inference_RAG_at_test.py
