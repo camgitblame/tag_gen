@@ -8,6 +8,28 @@ This project fine-tunes variants of GPT-2 to generate movie taglines based on me
 
 ---
 
+
+## Project Structure
+
+```
+tagline/
+├── backend/                 # FastAPI backend server
+│   ├── main.py             # Main API application
+│   ├── requirements.txt    # Backend dependencies
+│   └── movies_metadata.csv # Movie dataset
+├── frontend/               # Next.js frontend application
+│   ├── app/
+│   │   └── page.tsx       # Main React component
+│   ├── package.json       # Frontend dependencies
+│   └── next.config.js     # Next.js configuration
+├── scripts/               # Training scripts
+│   ├── run_clm.py        
+│   └── ...
+├── inference_*.py        # Inference for different models
+├── preprocess_*.py       # Data preprocessing 
+└── requirements*.txt     
+```
+
 ## Tech Stack
 
 - **Machine Learning**: PyTorch, Transformers (GPT-2), FAISS (RAG)

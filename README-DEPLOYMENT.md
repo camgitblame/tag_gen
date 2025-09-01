@@ -5,7 +5,7 @@ A modern web application that generates movie taglines using various AI models. 
 ## Architecture
 
 - **Backend**: FastAPI (Python) - Serves movie data and generated taglines via REST API
-- **Frontend**: Next.js (TypeScript + React) - Modern, responsive UI
+- **Frontend**: Next.js (TypeScript + React)
 - **Deployment**: 
   - Backend: Google Cloud Run
   - Frontend: Vercel
@@ -25,7 +25,7 @@ A modern web application that generates movie taglines using various AI models. 
    uvicorn main:app --reload --port 8080
    ```
 
-3. **Run frontend (in another terminal):**
+3. **Run frontend:**
    ```bash
    cd frontend
    npm run dev
@@ -63,7 +63,7 @@ A modern web application that generates movie taglines using various AI models. 
 
 1. **Prerequisites:**
    - Vercel account
-   - GitHub repository (recommended)
+   - GitHub repository 
 
 2. **Deploy via Vercel CLI:**
    ```bash
@@ -106,20 +106,6 @@ A modern web application that generates movie taglines using various AI models. 
 3. **Rich Movie Data**: Posters, genres, overviews, and original taglines
 4. **Responsive Design**: Works on desktop and mobile
 
-## Migration from Streamlit
-
-### What Changed:
-- **Separated concerns**: Data/logic in FastAPI, UI in Next.js
-- **Improved performance**: Caching with `@lru_cache`, async endpoints
-- **Better scalability**: Cloud-native deployment
-- **Modern UI**: React components with Tailwind CSS
-- **API-first**: RESTful API can be consumed by other applications
-
-### What Stayed the Same:
-- All original functionality preserved
-- Same data processing logic
-- Same movie selection and tagline generation
-- Visual styling closely matches original
 
 ## File Structure
 

@@ -5,9 +5,11 @@ import os
 import ast
 
 # === OMDb API Key ===
-OMDB_API_KEY = "a167b60b"  
+OMDB_API_KEY = "a167b60b"
 
 # === Load metadata and generations ===
+
+
 @st.cache_data
 def load_metadata():
     df = pd.read_csv("movies_metadata.csv")
@@ -24,6 +26,7 @@ def load_metadata():
     df["parsed_genres"] = df["genres"].apply(extract_genres)
     return df
 
+
 @st.cache_data
 def load_baseline():
     return pd.read_csv("generated_vs_original_with_beam.csv")
@@ -33,17 +36,21 @@ def load_baseline():
 def load_rag_infer():
     return pd.read_csv("generated_vs_original_RAG_infer.csv")
 
+
 @st.cache_data
 def load_genre_rag():
     return pd.read_csv("generated_vs_original_genre_RAG-final.csv")
+
 
 @st.cache_data
 def load_genre_only():
     return pd.read_csv("generated_vs_original_genre-final.csv")
 
+
 @st.cache_data
 def load_genre_rag_boosted():
     return pd.read_csv("generated_vs_original_genre_boosted_RAG-final.csv")
+
 
 @st.cache_data
 def load_genre_boosted():
@@ -69,10 +76,12 @@ valid_titles = set(df_meta["title"].str.lower()) \
     & set(df_genre_boosted["Title"].str.lower())
 
 
-
-valid_titles_sorted = sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
+valid_titles_sorted = sorted(
+    {title for title in df_meta["title"] if title.lower() in valid_titles})
 
 # === Check if the poster URL is valid ===
+
+
 def is_valid_url(url):
     try:
         r = requests.head(url)
@@ -81,6 +90,8 @@ def is_valid_url(url):
         return False
 
 # === Fallback: Fetch poster from OMDb ===
+
+
 def fetch_omdb_poster(title):
     try:
         url = f"http://www.omdbapi.com/?t={title}&apikey={OMDB_API_KEY}"
@@ -97,14 +108,15 @@ def fetch_omdb_poster(title):
 
 
 # === UI ===
-st.title("🍿 Tagline Generator")
+st.title("Tagline Generator")
 
 
 title_input = st.selectbox("Choose a movie:", valid_titles_sorted)
 
 if title_input:
-    match = df_meta[df_meta["title"].str.lower() == title_input.strip().lower()]
-    
+    match = df_meta[df_meta["title"].str.lower() ==
+                    title_input.strip().lower()]
+
     if not match.empty:
         row = match.iloc[0]
         title = row["title"]
@@ -115,8 +127,10 @@ if title_input:
         genre = row.get("parsed_genres", "N/A")
 
         # Construct URLs for posters
-        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else ""
-        backdrop_url = f"https://image.tmdb.org/t/p/w500{backdrop_path}" if pd.notna(backdrop_path) else ""
+        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(
+            poster_path) else ""
+        backdrop_url = f"https://image.tmdb.org/t/p/w500{backdrop_path}" if pd.notna(
+            backdrop_path) else ""
         poster_displayed = False
 
         # Try poster url, backdrop url, OMDb
@@ -152,27 +166,32 @@ if title_input:
                 )
                 poster_displayed = True
 
-
         if not poster_displayed:
             st.warning("No poster available.")
 
         # Look up generated taglines
         base_row = df_base[df_base["Title"].str.lower() == title.lower()]
-        rag_infer_row = df_rag_infer[df_rag_infer["Title"].str.lower() == title.lower()]
+        rag_infer_row = df_rag_infer[df_rag_infer["Title"].str.lower(
+        ) == title.lower()]
 
-        base_gen = base_row.iloc[0]["Generated"] if not base_row.empty else "❌ Not found"
-        rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "❌ Not found"
+        base_gen = base_row.iloc[0]["Generated"] if not base_row.empty else "Not found"
+        rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "Not found"
 
-        genre_rag_row = df_genre_rag[df_genre_rag["Title"].str.lower() == title.lower()]
-        genre_only_row = df_genre_only[df_genre_only["Title"].str.lower() == title.lower()]
+        genre_rag_row = df_genre_rag[df_genre_rag["Title"].str.lower(
+        ) == title.lower()]
+        genre_only_row = df_genre_only[df_genre_only["Title"].str.lower(
+        ) == title.lower()]
 
-        genre_rag_gen = genre_rag_row.iloc[0]["Generated"] if not genre_rag_row.empty else "❌ Not found"
-        genre_only_gen = genre_only_row.iloc[0]["Generated"] if not genre_only_row.empty else "❌ Not found"
+        genre_rag_gen = genre_rag_row.iloc[0]["Generated"] if not genre_rag_row.empty else "Not found"
+        genre_only_gen = genre_only_row.iloc[0]["Generated"] if not genre_only_row.empty else "Not found"
 
-        genre_rag_boosted_row = df_genre_rag_boosted[df_genre_rag_boosted["Title"].str.lower() == title.lower()]
-        genre_boosted_row = df_genre_boosted[df_genre_boosted["Title"].str.lower() == title.lower()]
-        genre_rag_boosted_gen = genre_rag_boosted_row.iloc[0]["Generated"] if not genre_rag_boosted_row.empty else "❌ Not found"
-        genre_boosted_gen = genre_boosted_row.iloc[0]["Generated"] if not genre_boosted_row.empty else "❌ Not found"
+        genre_rag_boosted_row = df_genre_rag_boosted[df_genre_rag_boosted["Title"].str.lower(
+        ) == title.lower()]
+        genre_boosted_row = df_genre_boosted[df_genre_boosted["Title"].str.lower(
+        ) == title.lower()]
+        genre_rag_boosted_gen = genre_rag_boosted_row.iloc[0][
+            "Generated"] if not genre_rag_boosted_row.empty else "Not found"
+        genre_boosted_gen = genre_boosted_row.iloc[0]["Generated"] if not genre_boosted_row.empty else "Not found"
 
         # ----------- Display text sections -----------
         # Genre
@@ -209,8 +228,7 @@ if title_input:
             """,
             unsafe_allow_html=True
         )
-        
-    
+
         # RAG at infer only tagline
         st.subheader("RAG At Inference Generated Tagline")
         st.markdown(
@@ -263,7 +281,8 @@ if title_input:
             unsafe_allow_html=True
         )
 
-        st.subheader("Overview + Genre + RAG (Boosted) Model Generated Tagline")
+        st.subheader(
+            "Overview + Genre + RAG (Boosted) Model Generated Tagline")
         st.markdown(
             f"""
             <div style='
@@ -279,7 +298,7 @@ if title_input:
                 {genre_rag_boosted_gen}
                 </div>
                 """,
-                unsafe_allow_html=True
+            unsafe_allow_html=True
         )
 
         st.subheader("Overview + Genre (Boosted) Model Generated Tagline")
@@ -298,6 +317,5 @@ if title_input:
                 {genre_boosted_gen}
                 </div>
                 """,
-                unsafe_allow_html=True
+            unsafe_allow_html=True
         )
-

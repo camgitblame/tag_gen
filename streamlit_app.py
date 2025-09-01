@@ -5,24 +5,46 @@ import os
 import ast
 
 # === OMDb API Key ===
-OMDB_API_KEY = "a167b60b"  
+OMDB_API_KEY = "a167b60b"
 
 # === Load metadata and generations ===
+
+
 @st.cache_data
 def load_metadata():
-    df = pd.read_csv("movies_metadata.csv")
-    df = df[df["overview"].notna() & df["tagline"].notna()]
+    # Use more efficient data types and only load necessary columns initially
+    usecols = ["title", "overview", "tagline", "genres",
+               "poster_path", "release_date", "vote_average"]
+    df = pd.read_csv("movies_metadata.csv", usecols=usecols, dtype={
+        "title": "string",
+        "overview": "string",
+        "tagline": "string",
+        "genres": "string",
+        "poster_path": "string",
+        "release_date": "string"
+    }, low_memory=False)
 
-    # Convert stringified lists in the 'genres' column to actual lists
-    def extract_genres(genres_str):
+    # Filter out null values early
+    df = df.dropna(subset=["overview", "tagline"])
+    df = df[(df["overview"].str.strip() != "") &
+            (df["tagline"].str.strip() != "")]
+
+    # Optimized genre parsing using regex instead of ast.literal_eval
+    import re
+
+    def extract_genres_fast(genres_str):
+        if pd.isna(genres_str) or genres_str.strip() == "":
+            return "N/A"
         try:
-            genres_list = ast.literal_eval(genres_str)
-            return ", ".join([g["name"] for g in genres_list]) if isinstance(genres_list, list) else "N/A"
+            # Use regex to extract genre names more efficiently
+            genre_names = re.findall(r"'name': '([^']+)'", genres_str)
+            return ", ".join(genre_names) if genre_names else "N/A"
         except:
             return "N/A"
 
-    df["parsed_genres"] = df["genres"].apply(extract_genres)
+    df["parsed_genres"] = df["genres"].apply(extract_genres_fast)
     return df
+
 
 @st.cache_data
 def load_baseline():
@@ -33,44 +55,78 @@ def load_baseline():
 def load_rag_infer():
     return pd.read_csv("generated_vs_original_RAG_infer.csv")
 
+
 @st.cache_data
 def load_genre_rag():
     return pd.read_csv("generated_vs_original_genre_RAG-final.csv")
+
 
 @st.cache_data
 def load_genre_only():
     return pd.read_csv("generated_vs_original_genre-final.csv")
 
+
 @st.cache_data
 def load_genre_rag_boosted():
     return pd.read_csv("generated_vs_original_genre_boosted_RAG-final.csv")
+
 
 @st.cache_data
 def load_genre_boosted():
     return pd.read_csv("generated_vs_original_genre_boost-final.csv")
 
-
-df_meta = load_metadata()
-df_base = load_baseline()
-df_rag_infer = load_rag_infer()
-df_genre_rag = load_genre_rag()
-df_genre_only = load_genre_only()
-df_genre_rag_boosted = load_genre_rag_boosted()
-df_genre_boosted = load_genre_boosted()
+# Lazy loading helper to avoid loading all datasets at startup
 
 
-# Titles common to all csv sources
-valid_titles = set(df_meta["title"].str.lower()) \
-    & set(df_base["Title"].str.lower()) \
-    & set(df_rag_infer["Title"].str.lower()) \
-    & set(df_genre_rag["Title"].str.lower()) \
-    & set(df_genre_only["Title"].str.lower()) \
-    & set(df_genre_rag_boosted["Title"].str.lower()) \
-    & set(df_genre_boosted["Title"].str.lower())
+@st.cache_data
+def get_valid_titles():
+    """Only load and compute valid titles when actually needed"""
+    df_meta = load_metadata()
+    df_base = load_baseline()
+    df_rag_infer = load_rag_infer()
+    df_genre_rag = load_genre_rag()
+    df_genre_only = load_genre_only()
+    df_genre_rag_boosted = load_genre_rag_boosted()
+    df_genre_boosted = load_genre_boosted()
+
+    # Pre-compute lowercase titles for faster intersection
+    meta_titles = set(df_meta["title"].str.lower())
+    base_titles = set(df_base["Title"].str.lower())
+    rag_infer_titles = set(df_rag_infer["Title"].str.lower())
+    genre_rag_titles = set(df_genre_rag["Title"].str.lower())
+    genre_only_titles = set(df_genre_only["Title"].str.lower())
+    genre_rag_boosted_titles = set(df_genre_rag_boosted["Title"].str.lower())
+    genre_boosted_titles = set(df_genre_boosted["Title"].str.lower())
+
+    valid_titles = meta_titles & base_titles & rag_infer_titles & genre_rag_titles & genre_only_titles & genre_rag_boosted_titles & genre_boosted_titles
+
+    # Return sorted list of original case titles
+    valid_titles_sorted = sorted(
+        {title for title in df_meta["title"] if title.lower() in valid_titles})
+    return valid_titles, valid_titles_sorted
 
 
+# Remove global loading - datasets will be loaded on demand
+# df_meta = load_metadata()
+# df_base = load_baseline()
+# df_rag_infer = load_rag_infer()
+# df_genre_rag = load_genre_rag()
+# df_genre_only = load_genre_only()
+# df_genre_rag_boosted = load_genre_rag_boosted()
+# df_genre_boosted = load_genre_boosted()
 
-valid_titles_sorted = sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
+
+# # Titles common to all csv sources
+# valid_titles = set(df_meta["title"].str.lower()) \
+#     & set(df_base["Title"].str.lower()) \
+#     & set(df_rag_infer["Title"].str.lower()) \
+#     & set(df_genre_rag["Title"].str.lower()) \
+#     & set(df_genre_only["Title"].str.lower()) \
+#     & set(df_genre_rag_boosted["Title"].str.lower()) \
+#     & set(df_genre_boosted["Title"].str.lower())
+
+
+# valid_titles_sorted = sorted({title for title in df_meta["title"] if title.lower() in valid_titles})
 
 # === Check if the poster URL is valid ===
 def is_valid_url(url):
@@ -81,6 +137,8 @@ def is_valid_url(url):
         return False
 
 # === Fallback: Fetch poster from OMDb ===
+
+
 def fetch_omdb_poster(title):
     try:
         url = f"http://www.omdbapi.com/?t={title}&apikey={OMDB_API_KEY}"
@@ -93,18 +151,27 @@ def fetch_omdb_poster(title):
     return None
 
 
-# Add movie genre to the metadata DataFrame
-
-
 # === UI ===
-st.title("🍿 Tagline Generator")
+st.title("Tagline Generator")
 
+# Load valid titles only when needed
+if "valid_titles_cache" not in st.session_state:
+    with st.spinner("Loading movie database..."):
+        valid_titles, valid_titles_sorted = get_valid_titles()
+        st.session_state.valid_titles_cache = valid_titles
+        st.session_state.valid_titles_sorted_cache = valid_titles_sorted
+else:
+    valid_titles = st.session_state.valid_titles_cache
+    valid_titles_sorted = st.session_state.valid_titles_sorted_cache
 
 title_input = st.selectbox("Choose a movie:", valid_titles_sorted)
 
 if title_input:
-    match = df_meta[df_meta["title"].str.lower() == title_input.strip().lower()]
-    
+    # Load metadata only when needed
+    df_meta = load_metadata()
+    match = df_meta[df_meta["title"].str.lower() ==
+                    title_input.strip().lower()]
+
     if not match.empty:
         row = match.iloc[0]
         title = row["title"]
@@ -115,8 +182,10 @@ if title_input:
         genre = row.get("parsed_genres", "N/A")
 
         # Construct URLs for posters
-        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else ""
-        backdrop_url = f"https://image.tmdb.org/t/p/w500{backdrop_path}" if pd.notna(backdrop_path) else ""
+        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(
+            poster_path) else ""
+        backdrop_url = f"https://image.tmdb.org/t/p/w500{backdrop_path}" if pd.notna(
+            backdrop_path) else ""
         poster_displayed = False
 
         # Try poster url, backdrop url, OMDb
@@ -152,27 +221,40 @@ if title_input:
                 )
                 poster_displayed = True
 
-
         if not poster_displayed:
             st.warning("No poster available.")
 
+        # Load generation datasets only when displaying results
+        df_base = load_baseline()
+        df_rag_infer = load_rag_infer()
+        df_genre_rag = load_genre_rag()
+        df_genre_only = load_genre_only()
+        df_genre_rag_boosted = load_genre_rag_boosted()
+        df_genre_boosted = load_genre_boosted()
+
         # Look up generated taglines
         base_row = df_base[df_base["Title"].str.lower() == title.lower()]
-        rag_infer_row = df_rag_infer[df_rag_infer["Title"].str.lower() == title.lower()]
+        rag_infer_row = df_rag_infer[df_rag_infer["Title"].str.lower(
+        ) == title.lower()]
 
-        base_gen = base_row.iloc[0]["Generated"] if not base_row.empty else "❌ Not found"
-        rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "❌ Not found"
+        base_gen = base_row.iloc[0]["Generated"] if not base_row.empty else "Not found"
+        rag_infer_gen = rag_infer_row.iloc[0]["Generated"] if not rag_infer_row.empty else "Not found"
 
-        genre_rag_row = df_genre_rag[df_genre_rag["Title"].str.lower() == title.lower()]
-        genre_only_row = df_genre_only[df_genre_only["Title"].str.lower() == title.lower()]
+        genre_rag_row = df_genre_rag[df_genre_rag["Title"].str.lower(
+        ) == title.lower()]
+        genre_only_row = df_genre_only[df_genre_only["Title"].str.lower(
+        ) == title.lower()]
 
-        genre_rag_gen = genre_rag_row.iloc[0]["Generated"] if not genre_rag_row.empty else "❌ Not found"
-        genre_only_gen = genre_only_row.iloc[0]["Generated"] if not genre_only_row.empty else "❌ Not found"
+        genre_rag_gen = genre_rag_row.iloc[0]["Generated"] if not genre_rag_row.empty else "Not found"
+        genre_only_gen = genre_only_row.iloc[0]["Generated"] if not genre_only_row.empty else "Not found"
 
-        genre_rag_boosted_row = df_genre_rag_boosted[df_genre_rag_boosted["Title"].str.lower() == title.lower()]
-        genre_boosted_row = df_genre_boosted[df_genre_boosted["Title"].str.lower() == title.lower()]
-        genre_rag_boosted_gen = genre_rag_boosted_row.iloc[0]["Generated"] if not genre_rag_boosted_row.empty else "❌ Not found"
-        genre_boosted_gen = genre_boosted_row.iloc[0]["Generated"] if not genre_boosted_row.empty else "❌ Not found"
+        genre_rag_boosted_row = df_genre_rag_boosted[df_genre_rag_boosted["Title"].str.lower(
+        ) == title.lower()]
+        genre_boosted_row = df_genre_boosted[df_genre_boosted["Title"].str.lower(
+        ) == title.lower()]
+        genre_rag_boosted_gen = genre_rag_boosted_row.iloc[0][
+            "Generated"] if not genre_rag_boosted_row.empty else "Not found"
+        genre_boosted_gen = genre_boosted_row.iloc[0]["Generated"] if not genre_boosted_row.empty else "Not found"
 
         # ----------- Display text sections -----------
         # Genre
@@ -209,8 +291,7 @@ if title_input:
             """,
             unsafe_allow_html=True
         )
-        
-    
+
         # RAG at infer only tagline
         st.subheader("RAG At Inference Generated Tagline")
         st.markdown(
@@ -263,7 +344,8 @@ if title_input:
             unsafe_allow_html=True
         )
 
-        st.subheader("Overview + Genre + RAG (Boosted) Model Generated Tagline")
+        st.subheader(
+            "Overview + Genre + RAG (Boosted) Model Generated Tagline")
         st.markdown(
             f"""
             <div style='
@@ -279,7 +361,7 @@ if title_input:
                 {genre_rag_boosted_gen}
                 </div>
                 """,
-                unsafe_allow_html=True
+            unsafe_allow_html=True
         )
 
         st.subheader("Overview + Genre (Boosted) Model Generated Tagline")
@@ -298,6 +380,5 @@ if title_input:
                 {genre_boosted_gen}
                 </div>
                 """,
-                unsafe_allow_html=True
+            unsafe_allow_html=True
         )
-

@@ -74,3 +74,13 @@ out/
 # Logs
 logs
 *.log
+
+# Optimization documentation
+PERFORMANCE_OPTIMIZATIONS.md
+OPTIMIZATION_SUMMARY.md
+
+README-DEPLOYMENT.md
+streamlit_app.py
+streamlit_app.py
+README-DEPLOYMENT.md
+PERFORMANCE_OPTIMIZATIONS.md
